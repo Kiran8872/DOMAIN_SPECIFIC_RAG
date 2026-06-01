@@ -2,10 +2,15 @@ node_modules
 dist
 .env
 .env.local
+clean/
+
 backend/node_modules
 backend/.env
 backend/.env.local
+backend/clean/
+
 frontend/node_modules
 frontend/dist
 frontend/.env
 frontend/.env.local
+frontend/clean/
