@@ -3,6 +3,15 @@ import dotenv from "dotenv";
 import express from "express";
 import fs from "fs";
 import path from "path";
+import { rateLimit } from "express-rate-limit";
+
+// Prevent server from silently crashing on unhandled errors
+process.on("uncaughtException", (err) => {
+  console.error("FATAL: Uncaught Exception:", err);
+});
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("FATAL: Unhandled Rejection at:", promise, "reason:", reason);
+});
 
 import documentRoutes from "./routes/documentRoutes.js";
 import ragRoutes from "./routes/ragRoutes.js";
@@ -21,13 +30,21 @@ for (const envPath of envCandidates) {
 
 const app = express();
 
-// Keep the backend easy to use from the Vite frontend and from serverless deployments.
+// Restrict CORS to specific frontend origin
 app.use(cors({
-  origin: "*",
+  origin: process.env.CORS_ORIGIN || "http://localhost:5173",
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
 app.options("*", cors());
+
+// Rate Limiting to prevent API abuse
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: { message: "Too many requests from this IP, please try again after 15 minutes" }
+});
+app.use("/api/backend", apiLimiter);
 app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true }));
 
@@ -73,9 +90,15 @@ app.use((error, _req, res, _next) => {
   });
 });
 
+import { autoIngestSampleDocs } from "./startup/autoIngest.js";
+
 export default app;
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Backend server running on port ${PORT}`);
+  // Auto-ingest sample docs in the background after server is ready
+  autoIngestSampleDocs().catch((err) =>
+    console.error("[Auto-Ingest] Fatal error:", err.message)
+  );
 });

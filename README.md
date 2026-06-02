@@ -121,7 +121,7 @@ No separate backend terminal is needed during development because the backend is
 
 ## How to Use
 
-1. Upload a PDF, TXT, DOC, or DOCX file.
+1. Upload a PDF, TXT, or DOCX file.
 2. Select the uploaded document.
 3. Click **Process selected doc** to run the RAG document pipeline.
 4. Ask a question in the chat box.

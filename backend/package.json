@@ -7,14 +7,15 @@
     "dev": "node index.js"
   },
   "dependencies": {
+    "@chroma-core/default-embed": "^0.1.9",
     "chromadb": "^3.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
     "express": "^4.21.2",
+    "express-rate-limit": "^8.5.2",
     "langsmith": "^0.7.2",
     "mammoth": "^1.9.1",
     "multer": "^1.4.5-lts.1",
-    "pdf-parse": "^1.1.1",
-    "textract": "^2.5.0"
+    "pdf-parse": "^1.1.1"
   }
 }

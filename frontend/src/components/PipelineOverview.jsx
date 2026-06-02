@@ -1,7 +1,7 @@
 const pipelineSteps = [
   {
     title: 'Load Domain Docs',
-    description: 'Upload a PDF, TXT, DOC, or DOCX file so the backend can extract domain text from it.',
+    description: 'Upload a PDF, TXT, or DOCX file so the backend can extract domain text from it.',
     why: 'Domain-specific RAG starts with authoritative documents for the target subject.',
   },
   {

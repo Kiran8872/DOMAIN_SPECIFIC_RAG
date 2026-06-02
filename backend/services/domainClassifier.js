@@ -123,8 +123,14 @@ export async function classifyQueryDomain(query) {
 export async function classifyQueryComplexity(query) {
   return traceStep("classify_query_complexity", async () => {
     const wordCount = query.trim().split(/\s+/).length;
-    const hasMultipleTopics = /and|or|between|vs|versus|difference|compare/i.test(query);
-    const hasTechnicalDepth = /implement|architecture|design|pattern|workflow|pipeline|end to end|e2e/i.test(query);
+    const hasMultipleTopics =
+      /\b(and|or|between|vs|versus|difference|compare|comparison)\b/i.test(
+        query,
+      );
+    const hasTechnicalDepth =
+      /\b(implement|implementation|architecture|design|pattern|workflow|pipeline|end\s+to\s+end|e2e)\b/i.test(
+        query,
+      );
 
     let complexity = "simple";
     let reason = "";

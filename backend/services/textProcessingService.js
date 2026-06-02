@@ -2,8 +2,8 @@ export function cleanText(text) {
   return text
     .replace(/\r\n/g, "\n")
     .replace(/[\t ]+/g, " ")
+    .replace(/[\u0000-\u0009\u000B-\u001F]/g, "")
     .replace(/\n{3,}/g, "\n\n")
-    .replace(/[\u0000-\u001F]/g, "")
     .trim();
 }
 

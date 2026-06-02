@@ -191,33 +191,7 @@ export default function HomePage() {
         <div className="chat-container">
           {notice && <div className="notice">{notice}</div>}
           
-          {!answer && domainProfile && (
-            <div className="glass-panel">
-              <h2>Welcome to {domainProfile.name}</h2>
-              <p style={{ marginTop: '8px', color: 'var(--text-secondary)' }}>{domainProfile.description}</p>
-              
-              {domainProfile.guidelines && (
-                <p style={{marginTop: '16px', color: 'var(--text-secondary)'}}><strong>Guidelines:</strong> {domainProfile.guidelines}</p>
-              )}
-              
-              {domainProfile.vocabulary && (
-                <div style={{ marginTop: '20px' }}>
-                  <strong style={{ color: 'var(--text-primary)' }}>You can ask about:</strong>
-                  <div className="tags-container">
-                    {domainProfile.vocabulary.split(',').map((topic, i) => (
-                      <span 
-                        key={i} 
-                        className="topic-tag"
-                        onClick={() => setQuestion(`Tell me about ${topic.trim()}`)}
-                      >
-                        {topic.trim()}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
+
 
           {answer && (
             <AnswerPanel

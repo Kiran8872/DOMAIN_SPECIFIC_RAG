@@ -8,13 +8,34 @@ const GROQ_CHAT_MODELS = [
   "mixtral-8x7b-32768",
   "gemma2-9b-it",
 ];
-const GROQ_API_KEY =
-  process.env.GROQ_API_KEY || "";
+const MAX_CONTEXT_CHUNKS = 10;
+const MAX_CHUNK_CHARACTERS = 900;
+const MAX_CONTEXT_CHARACTERS = 6000;
+
+function getGroqApiKey() {
+  return process.env.GROQ_API_KEY || "";
+}
 
 function renderContext(retrievedChunks = []) {
-  return retrievedChunks
-    .map((chunk, index) => `Chunk ${index + 1}: ${chunk.text}`)
-    .join("\n\n");
+  const renderedChunks = [];
+  let totalCharacters = 0;
+
+  for (const chunk of retrievedChunks.slice(0, MAX_CONTEXT_CHUNKS)) {
+    const text = String(chunk.text || "").slice(0, MAX_CHUNK_CHARACTERS);
+    if (!text.trim()) {
+      continue;
+    }
+
+    const renderedChunk = `Chunk ${renderedChunks.length + 1}: ${text}`;
+    if (totalCharacters + renderedChunk.length > MAX_CONTEXT_CHARACTERS) {
+      break;
+    }
+
+    renderedChunks.push(renderedChunk);
+    totalCharacters += renderedChunk.length;
+  }
+
+  return renderedChunks.join("\n\n");
 }
 
 function buildFallbackAnswer(question, retrievedChunks, reason = "") {
@@ -97,7 +118,7 @@ async function fetchGroqChatCompletion(question, retrievedChunks) {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${GROQ_API_KEY}`,
+            Authorization: `Bearer ${getGroqApiKey()}`,
           },
           body: JSON.stringify({
             model,

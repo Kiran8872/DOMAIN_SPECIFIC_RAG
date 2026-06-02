@@ -62,30 +62,60 @@ function scoreKeywordMatch(queryTokens, chunkText) {
   }
 
   const matchedTerms = [];
-  let score = 0;
+  let termScore = 0;
 
   for (const token of queryTokens) {
     const count = tokenCounts.get(token) || 0;
     if (count > 0) {
       matchedTerms.push(token);
-      score += 1 + Math.log(1 + count);
+      termScore += 1 + Math.min(Math.log(1 + count), 1);
     }
   }
 
-  const overlap = matchedTerms.length / queryTokens.length;
+  const uniqueMatches = new Set(matchedTerms);
+  const overlap = uniqueMatches.size / queryTokens.length;
+  const missingTerms = queryTokens.length - uniqueMatches.size;
   const exactPhraseBonus = chunkText
     .toLowerCase()
     .includes(queryTokens.join(" "))
-    ? 1.25
+    ? 2.5
     : 0;
+  const allTermsBonus = overlap === 1 ? 3 : 0;
+  const missingTermPenalty = missingTerms * 1.25;
   const lengthPenalty = Math.min(chunkTokens.length / 240, 1) * 0.25;
 
   return {
     keywordScore: Number(
-      (score + overlap + exactPhraseBonus - lengthPenalty).toFixed(4),
+      (
+        termScore +
+        overlap * 4 +
+        exactPhraseBonus +
+        allTermsBonus -
+        missingTermPenalty -
+        lengthPenalty
+      ).toFixed(4),
     ),
-    matchedTerms: [...new Set(matchedTerms)],
+    matchedTerms: [...uniqueMatches],
   };
+}
+
+function dedupeChunks(chunks) {
+  const bestByContent = new Map();
+
+  for (const chunk of chunks) {
+    const key = [
+      chunk.documentName || chunk.documentId || "document",
+      chunk.chunkIndex ?? "unknown",
+      (chunk.text || "").slice(0, 160),
+    ].join("::");
+    const current = bestByContent.get(key);
+
+    if (!current || chunk.keywordScore > current.keywordScore) {
+      bestByContent.set(key, chunk);
+    }
+  }
+
+  return Array.from(bestByContent.values());
 }
 
 export async function runKeywordSearch({
@@ -101,18 +131,20 @@ export async function runKeywordSearch({
       domainName: domainName || undefined,
     });
 
-    const scoredChunks = chunks
-      .map((chunk) => {
-        const scoring = scoreKeywordMatch(queryTokens, chunk.text || "");
+    const scoredChunks = dedupeChunks(
+      chunks
+        .map((chunk) => {
+          const scoring = scoreKeywordMatch(queryTokens, chunk.text || "");
 
-        return {
-          ...chunk,
-          keywordScore: scoring.keywordScore,
-          matchedTerms: scoring.matchedTerms,
-          searchSource: "keyword",
-        };
-      })
-      .filter((chunk) => chunk.keywordScore > 0)
+          return {
+            ...chunk,
+            keywordScore: scoring.keywordScore,
+            matchedTerms: scoring.matchedTerms,
+            searchSource: "keyword",
+          };
+        })
+        .filter((chunk) => chunk.keywordScore > 0),
+    )
       .sort((left, right) => right.keywordScore - left.keywordScore)
       .slice(0, topK);
 

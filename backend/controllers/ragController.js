@@ -5,12 +5,19 @@ export async function askQuestion(req, res, next) {
   try {
     const { question, documentId = null } = req.body;
 
-    if (!question) {
-      return res.status(400).json({ message: "question is required." });
+    if (!question || typeof question !== "string" || question.trim().length === 0) {
+      return res.status(400).json({ message: "A valid question string is required." });
     }
 
+    if (question.length > 1000) {
+      return res.status(400).json({ message: "Question exceeds maximum length of 1000 characters." });
+    }
+
+    // Basic sanitization to prevent control character injection
+    const sanitizedQuestion = question.replace(/[\x00-\x1F\x7F-\x9F]/g, "").trim();
+
     const result = await answerQuestion({
-      question,
+      question: sanitizedQuestion,
       documentId,
     });
 

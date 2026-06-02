@@ -1,10 +1,10 @@
-const DEFAULT_DOMAIN_NAME = "Full Stack Java Development";
+const DEFAULT_DOMAIN_NAME = "Artificial Intelligence & Generative AI";
 const DEFAULT_DOMAIN_DESCRIPTION =
-  "Answer only from retrieved documents about full stack Java development including React, JavaScript, Spring Boot, Java, and MySQL. Reject any off-topic questions not related to these technologies.";
+  "Answer from the retrieved domain documents about artificial intelligence, generative AI, machine learning, deep learning, neural networks, large language models, and related topics. If uploaded documents contain relevant context for a question, use that context even when the question wording does not match the default domain vocabulary.";
 const DEFAULT_DOMAIN_VOCABULARY =
-  "React, JavaScript, Spring Boot, Java, MySQL, REST API, JPA, Hibernate, JDBC, Components, Hooks, State, Props, SQL, Queries, Transactions, Indexes";
+  "Artificial Intelligence, Generative AI, Machine Learning, Deep Learning, Neural Networks, Large Language Models, Transformers, NLP, Computer Vision, Reinforcement Learning, GPT, LLM, Prompt Engineering, ChatGPT, Attention Mechanism, Convolutional Neural Network, Recurrent Neural Network";
 const DEFAULT_DOMAIN_GUIDELINES =
-  "Use official documentation terms, be precise and technical, focus on practical examples when possible.";
+  "Use official AI/ML terminology, be precise and technical, focus on practical explanations with examples when possible.";
 
 export function getDomainProfile() {
   return {
@@ -34,12 +34,13 @@ export function getDomainSystemPrompt() {
   }
 
   parts.push(
-    "CRITICAL RULES:",
-    "1. ONLY answer using information from the retrieved context chunks.",
-    "2. If the question is off-topic, explicitly state it's not related to the domain.",
-    "3. If the answer is not in the context, say: 'The domain documents do not mention this topic.'",
-    "4. Maintain formal, expert tone appropriate for the domain.",
-    "5. Do NOT use any external knowledge beyond the provided context.",
+    "RULES:",
+    "1. Answer using information from the retrieved context chunks. You may synthesize and summarize across multiple chunks.",
+    "2. If retrieved context contains relevant information, answer from it even if the question appears outside the default domain.",
+    "3. If the retrieved context contains relevant information, provide a comprehensive answer based on it.",
+    "4. If no retrieved context is relevant and the question is clearly unrelated to the domain, state that it is not related to the available documents.",
+    "5. Maintain a formal, expert tone appropriate for the domain.",
+    "6. Prefer information from the provided context, but you may use general domain knowledge to fill small gaps.",
   );
 
   return parts.join("\n");

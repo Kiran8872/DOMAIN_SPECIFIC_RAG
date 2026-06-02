@@ -15,7 +15,7 @@ export async function uploadDocument(req, res, next) {
     if (!req.file) {
       return res
         .status(400)
-        .json({ message: "Please upload a PDF, TXT, DOC, or DOCX file." });
+        .json({ message: "Please upload a PDF, TXT, or DOCX file." });
     }
 
     const extractedText = await extractTextFromDocument(req.file);

@@ -17,7 +17,7 @@ export default function UploadPanel({
           <span>Upload Document</span>
           <input
             type="file"
-            accept=".pdf,.txt,.doc,.docx"
+            accept=".pdf,.txt,.docx"
             onChange={(event) => onFileChange(event.target.files?.[0] || null)}
           />
         </label>

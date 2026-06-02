@@ -6,14 +6,34 @@ const RETRIEVAL_QUALITY_THRESHOLDS = {
   MIN_AVERAGE_SCORE: 0.3
 };
 
+function normalizeScore(value) {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return null;
+  }
+
+  return Math.max(0, Math.min(1, value));
+}
+
+function getChunkQualityScore(chunk) {
+  const scores = [
+    chunk.rerankScore,
+    chunk.hybridScore,
+    chunk.semanticScore,
+    chunk.score,
+    chunk.keywordScore,
+  ]
+    .map(normalizeScore)
+    .filter((score) => score !== null);
+
+  return scores.length > 0 ? Math.max(...scores) : 0;
+}
+
 function calculateRetrievalQuality(chunks, query) {
   const relevantChunks = chunks.filter(chunk => 
-    (chunk.score ?? chunk.semanticScore ?? chunk.rerankScore ?? 0) > 0.2
+    getChunkQualityScore(chunk) > 0.2
   );
   
-  const scores = chunks.map(chunk => 
-    chunk.score ?? chunk.semanticScore ?? chunk.rerankScore ?? 0
-  );
+  const scores = chunks.map(getChunkQualityScore);
   
   const averageScore = scores.length > 0 
     ? scores.reduce((sum, score) => sum + score, 0) / scores.length 

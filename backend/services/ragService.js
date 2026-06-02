@@ -117,12 +117,12 @@ export async function answerQuestion({ question, documentId = null }) {
         queryEmbedding,
         documentId,
         domainName: domainClassification.domain,
-        topK: 5,
+        topK: 30,
       });
       rerankedChunks = await rerankChunks({
         query: queryOptimization.optimizedQuery,
         candidates: semanticResults,
-        topK: 3,
+        topK: 15,
       });
     } else if (complexityClassification.complexity === "medium") {
       // Medium query: hybrid search with reranking
@@ -131,13 +131,13 @@ export async function answerQuestion({ question, documentId = null }) {
         optimizedQuery: queryOptimization.optimizedQuery,
         documentId,
         domainName: domainClassification.domain,
-        topK: 8,
+        topK: 50,
         queryEmbedding,
       });
       rerankedChunks = await rerankChunks({
         query: queryOptimization.optimizedQuery,
         candidates: hybridSearchResults.mergedResults,
-        topK: 5,
+        topK: 25,
       });
     } else {
       // Complex query: hybrid search with larger top-k and reranking
@@ -146,13 +146,13 @@ export async function answerQuestion({ question, documentId = null }) {
         optimizedQuery: queryOptimization.optimizedQuery,
         documentId,
         domainName: domainClassification.domain,
-        topK: 12,
+        topK: 80,
         queryEmbedding,
       });
       rerankedChunks = await rerankChunks({
         query: queryOptimization.optimizedQuery,
         candidates: hybridSearchResults.mergedResults,
-        topK: 6,
+        topK: 40,
       });
     }
 
@@ -172,7 +172,7 @@ export async function answerQuestion({ question, documentId = null }) {
         const reranked = await rerankChunks({
           query: q,
           candidates: results.mergedResults,
-          topK: Math.min(topK, 6),
+          topK: Math.min(topK, 40),
         });
         return reranked;
       },
@@ -180,7 +180,8 @@ export async function answerQuestion({ question, documentId = null }) {
 
     retrievedChunks = cragResult.chunks.slice(
       0,
-      complexityClassification.complexity === "complex" ? 5 : 3,
+      complexityClassification.complexity === "complex" ? 40 : 
+      complexityClassification.complexity === "medium" ? 25 : 15,
     );
 
     // Step 6: Generate answer with domain-specific system prompt

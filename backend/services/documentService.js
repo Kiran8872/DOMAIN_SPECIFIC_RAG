@@ -1,28 +1,12 @@
 import { randomUUID } from "crypto";
 import fs from "fs/promises";
-import os from "os";
-import path from "path";
 
 import mammoth from "mammoth";
 import pdfParse from "pdf-parse";
-import textract from "textract";
 
 import { fileExtension, previewText } from "../utils/fileHelpers.js";
 
 const documents = [];
-
-function extractWithTextract(filePath) {
-  return new Promise((resolve, reject) => {
-    textract.fromFileWithPath(filePath, (error, text) => {
-      if (error) {
-        reject(error);
-        return;
-      }
-
-      resolve(text || "");
-    });
-  });
-}
 
 export async function extractTextFromDocument(file) {
   const originalName = file.originalname || file.filename || "document";
@@ -51,31 +35,9 @@ export async function extractTextFromDocument(file) {
     return parsedDocx.value || "";
   }
 
-  // Legacy DOC files are handled best-effort with Textract to keep the demo beginner-friendly.
+  // Legacy DOC parsing required an unsafe dependency. Prefer DOCX for Word files.
   if (extension === ".doc") {
-    try {
-      const tempPath = path.join(
-        os.tmpdir(),
-        `${randomUUID()}-${originalName}`,
-      );
-
-      if (fileBuffer) {
-        await fs.writeFile(tempPath, fileBuffer);
-      }
-
-      try {
-        return await extractWithTextract(tempPath);
-      } finally {
-        await fs.unlink(tempPath).catch(() => {});
-      }
-    } catch (error) {
-      if (fileBuffer) {
-        return fileBuffer.toString("utf8");
-      }
-
-      const rawBytes = await fs.readFile(filePath);
-      return rawBytes.toString("utf8");
-    }
+    throw new Error("Legacy DOC files are not supported. Please upload TXT, PDF, or DOCX.");
   }
 
   // Plain text files are read directly.
@@ -92,6 +54,8 @@ export function registerUploadedDocument({
   originalName,
   mimetype,
   rawText,
+  status = "uploaded",
+  chunkCount = 0,
 }) {
   const documentId = randomUUID();
 
@@ -102,8 +66,8 @@ export function registerUploadedDocument({
     mimetype,
     rawText,
     storage: filePath ? "disk" : "memory",
-    status: "uploaded",
-    chunkCount: 0,
+    status,
+    chunkCount,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -113,7 +77,7 @@ export function registerUploadedDocument({
 }
 
 export function listUploadedDocuments() {
-  return documents.map(({ rawText, ...document }) => ({
+  return documents.map(({ rawText, cleanedText, ...document }) => ({
     ...document,
     textPreview: previewText(rawText),
     textLength: rawText.length,
@@ -146,7 +110,7 @@ export function getDocumentSummary(documentId) {
     return null;
   }
 
-  const { rawText, ...summary } = document;
+  const { rawText, cleanedText, ...summary } = document;
   return {
     ...summary,
     textPreview: previewText(rawText),

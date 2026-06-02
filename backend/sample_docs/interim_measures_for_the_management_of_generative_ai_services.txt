@@ -1,0 +1,79 @@
+The Interim Measures for the Management of Generative AI Services (Chinese: 生成式人工智能服务管理暂行办法; pinyin: Shēngchéng shì réngōng zhìnéng fúwù guǎnlǐ zànxíng bànfǎ) are a set of regulations governing public-facing generative artificial intelligence services in China. Issued on 10 July 2023 and effective from 15 August 2023, they were China's first binding regulation specifically targeting generative AI. They have been described as among the earliest such regulations adopted by any country.
+The measures were jointly issued by the Cyberspace Administration of China (CAC) and six other national bodies: the National Development and Reform Commission, the Ministry of Education, the Ministry of Science and Technology, the Ministry of Industry and Information Technology, the Ministry of Public Security, and the National Radio and Television Administration.
+Among the measures' most prominent requirements is that generative AI services must uphold Core Socialist Values and must not generate content that could subvert state power, harm national security, or undermine social stability. The measures also require providers of public-facing generative AI services to undergo security assessments and register their algorithms with the CAC. As of December 2025, 748 generative AI services had completed the filing process at the national level.
+
+
+== Background ==
+The Interim Measures build on two earlier sets of regulations targeting specific algorithm applications. The Administrative Provisions on Algorithm Recommendation for Internet Information Services, effective from March 2022, established China's algorithm registry and required providers of recommendation algorithms with "public opinion properties or social mobilization capabilities" to file with the CAC and undergo security assessments. The Administrative Provisions on Deep Synthesis of Internet Information Services, effective from January 2023, extended similar requirements to algorithms used for generating synthetic media such as deepfakes.
+In April 2023, the CAC released a draft of the generative AI regulation for public comment. The draft included several requirements that attracted attention, including that generated content should "embody Core Socialist Values" and that training data should be "true and accurate". The public consultation period ran until May 2023. The final version, published in July 2023, was substantially revised from the draft. According to an analysis by the Future of Privacy Forum, changes appeared to reflect feedback from industry stakeholders including Baidu, Xiaomi, SenseTime, and others, as well as input from government-affiliated research institutes. The final measures adopted a more permissive tone, with the CAC describing its approach as "inclusive and prudent" (包容审慎) and emphasising "classified and graded" (分类分级) supervision.
+
+
+== Scope ==
+The measures apply to services that use generative AI technology to provide text, images, audio, video, or other content to the public within mainland China (Article 2). They do not apply to organisations that develop or use generative AI internally without offering services to the domestic public, such as industry associations, enterprises, and research institutions. Overseas providers whose services are accessible to users in China are also subject to the measures.
+
+
+== Key provisions ==
+
+
+=== Content requirements ===
+Article 4 sets out the core content obligations. Providers and users of generative AI services must uphold the Core Socialist Values. The measures prohibit generating content that incites subversion of national sovereignty or the socialist system, endangers national security or the nation's image, incites separatism, promotes terrorism or extremism, promotes ethnic hatred or discrimination, or contains violence, obscenity, or false information prohibited by law.
+These content prohibitions largely mirror those in Article 12 of the Cybersecurity Law and in prior regulations governing online content. Article 4 also requires that models be designed and trained to avoid discrimination, that services respect intellectual property rights, and that providers take effective measures to improve the transparency and accuracy of generated content.
+
+
+=== Training data and labelling ===
+Article 7 requires providers to ensure that training data is of high quality and legitimately sourced, and that it does not infringe upon intellectual property rights. Where personal information is used, consent must be obtained. The final version of this provision removed language from the draft that would have held providers responsible for the "legitimacy" of all pretraining data, replacing it with a requirement to "employ effective measures to improve the quality of training data".
+Article 8 requires providers to establish labelling rules for training data and to conduct quality assessments of data annotations. Article 12 requires that generated images, videos, and other synthetic content be labelled as AI-generated.
+
+
+=== User rights and privacy ===
+Article 11 requires providers to protect user privacy, to minimise the collection and retention of personal data, and to refrain from unlawfully sharing user information. Users have the right to request review, correction, or deletion of their personal information. Article 10 requires providers to take measures to prevent excessive dependence on or addiction to generative AI services by minors.
+
+
+=== Security assessment and algorithm filing ===
+Article 17 requires that providers of generative AI services with "public opinion properties or the capacity for social mobilization" (具有舆论属性或者社会动员能力) carry out security assessments and complete algorithm filing procedures in accordance with the Administrative Provisions on Algorithm Recommendation for Internet Information Services.
+
+
+== Implementation ==
+
+
+=== Algorithm filing process ===
+In practice, the filing requirements under the Interim Measures have developed into a two-tier process. The first tier is the standard algorithm filing (算法备案) under the pre-existing Algorithm Recommendation Provisions, which involves submitting information about an algorithm's design, purpose, and data sources to the CAC. This process is primarily a registration mechanism.
+For public-facing generative AI products, there is an additional, more rigorous process commonly referred to as the "large model filing" (大模型备案). This involves submitting a security self-assessment report, data annotation rules, a keyword blocking list, and evaluation test question sets. The process includes technical testing at the provincial level, followed by review at the national CAC level. The algorithm filing targets specific algorithms, while the large model filing evaluates the broader system architecture, training data, model parameters, and potential social impact.
+The CAC publishes lists of generative AI services that have successfully completed the filing process. The first such list was published on 2 April 2024. According to the CAC's year-end announcements, 302 generative AI services had completed national-level filing by the end of 2024 (of which 238 were new that year), alongside 105 applications that completed local-level registration. By the end of 2025, the cumulative total had risen to 748 national-level filings and 435 local-level registrations.
+
+
+=== Content compliance and testing ===
+According to the Carnegie Endowment, the CAC has conducted compliance audits of generative AI services with a particular focus on ensuring appropriate responses to queries about politically sensitive topics. The large model filing process requires providers to pass both provincial-level and national-level technical testing before their services can be made available to the public.
+On 1 March 2024, the National Technical Committee 260 on Cybersecurity (TC260) published TC260-003, the Basic Security Requirements for Generative AI Services (生成式人工智能服务安全基本要求), a technical standard that provides detailed guidance on the security assessments required under the Interim Measures. The standard covers requirements for training data safety, model security, and content safety evaluation, and is used as a reference for the filing process.
+
+
+== Analysis ==
+
+
+=== Relationship to broader Chinese internet regulation ===
+The content requirements in the Interim Measures extend China's existing framework for online information control to generative AI. Legal scholars have noted that the "Core Socialist Values" provision and the specific content prohibitions are consistent with longstanding requirements imposed on internet platforms under the Cybersecurity Law and related regulations. The Asia Society Policy Institute has described the Chinese government's highest regulatory priority in this area as retaining control of information, noting that content-related obligations receive stricter enforcement than other provisions.
+
+
+=== Nature of the filing system ===
+The character of the filing system has been debated by scholars. Angela Huyue Zhang, writing in the Columbia Journal of Transnational Law, has argued that the Interim Measures and related legislation function in part as a signalling device, sending a pro-growth message to the AI industry rather than imposing substantial restrictions on it. Matt Sheehan of the Carnegie Endowment for International Peace has documented an active enforcement process in which CAC teams conduct compliance audits with a focus on politically sensitive content, and the rate of approved filings has accelerated over time.
+
+
+=== Comparison with other jurisdictions ===
+The Interim Measures represent a "vertical" approach to AI regulation, targeting a specific application of AI technology, in contrast to the "horizontal" approach taken by the EU AI Act, which establishes a single framework applicable across all AI applications. The measures sit alongside China's earlier algorithm-specific regulations and a broader body of laws including the Cybersecurity Law, the Data Security Law, and the Personal Information Protection Law.
+China's State Council initially indicated plans to develop a more comprehensive Artificial Intelligence Law (人工智能法), which would constitute a broader, horizontal regulatory framework. However, the comprehensive AI law was removed from the 2025 legislative schedule. As of late 2025, no official draft had been released, and the timeline for such legislation remained unclear. In October 2025, the National People's Congress instead passed amendments to the Cybersecurity Law that incorporated AI-related provisions for the first time into national law, including support for algorithm research and development and requirements for AI ethics and risk assessment.
+
+
+== See also ==
+Cyberspace Administration of China
+Core Socialist Values
+Internet censorship in China
+Regulation of artificial intelligence
+
+
+== References ==
+
+
+== External links ==
+Full text of the Interim Measures (in Chinese) – Cyberspace Administration of China
+English translation – China Law Translate (Jeremy Daum)
+Algorithm Registry website (in Chinese) – Cyberspace Administration of China

@@ -11,15 +11,58 @@ import {
 import { getDomainProfile } from "../services/domainProfile.js";
 
 const COLLECTION_NAME = process.env.CHROMA_COLLECTION || "RAG_MODEL";
+const PRECOMPUTED_EMBEDDING_FUNCTION = {
+  name: "precomputed",
+  generate: async (texts) => texts.map(() => []),
+};
 
 let collectionPromise = null;
+let allChunksCache = null;
+
+function applyChunkFilters(records, filters = {}) {
+  return records.filter((record) => {
+    if (filters.documentId && record.documentId !== filters.documentId) {
+      return false;
+    }
+
+    if (filters.domainName && record.domainName !== filters.domainName) {
+      return false;
+    }
+
+    return true;
+  });
+}
+
+function makeChunkDedupeKey(record) {
+  return [
+    record.documentName || record.documentId || "document",
+    record.chunkIndex ?? "unknown",
+    (record.text || "").slice(0, 160),
+  ].join("::");
+}
+
+function dedupeChunkRecords(records) {
+  const bestByChunk = new Map();
+
+  for (const record of records) {
+    const key = makeChunkDedupeKey(record);
+    const current = bestByChunk.get(key);
+    const score = record.score ?? 0;
+    const currentScore = current?.score ?? 0;
+
+    if (!current || score > currentScore) {
+      bestByChunk.set(key, record);
+    }
+  }
+
+  return Array.from(bestByChunk.values());
+}
 
 function isChromaConfigured() {
   return Boolean(
     process.env.CHROMA_API_KEY &&
     process.env.CHROMA_TENANT &&
-    process.env.CHROMA_DATABASE &&
-    process.env.CHROMA_HOST,
+    process.env.CHROMA_DATABASE,
   );
 }
 
@@ -45,21 +88,29 @@ async function getCollection() {
 
   if (!collectionPromise) {
     collectionPromise = (async () => {
-      const client = new CloudClient({
-        apiKey: process.env.CHROMA_API_KEY,
-        host: process.env.CHROMA_HOST,
-        port: 443,
-        tenant: process.env.CHROMA_TENANT,
-        database: process.env.CHROMA_DATABASE,
-        fetchOptions: {
-          cache: "no-store",
-        },
-      });
+      try {
+        const client = new CloudClient({
+          apiKey: process.env.CHROMA_API_KEY,
+          tenant: process.env.CHROMA_TENANT,
+          database: process.env.CHROMA_DATABASE,
+          host: process.env.CHROMA_HOST || "api.trychroma.com",
+          port: 443,
+        });
 
-      return client.getOrCreateCollection({
-        name: COLLECTION_NAME,
-        embeddingFunction: { generate: () => [] }
-      });
+        const collection = await client.getOrCreateCollection({
+          name: COLLECTION_NAME,
+          embeddingFunction: PRECOMPUTED_EMBEDDING_FUNCTION,
+        });
+
+        console.log("[ChromaDB] Connected to ChromaDB Cloud successfully.");
+        return collection;
+      } catch (err) {
+        console.warn(
+          `[ChromaDB] Failed to connect to ChromaDB Cloud: ${err.message}`
+        );
+        console.warn("[ChromaDB] Falling back to local disk-cached vector store.");
+        return null;
+      }
     })();
   }
 
@@ -67,9 +118,13 @@ async function getCollection() {
 }
 
 function createRecordId(record) {
+  const documentKey = String(record.documentId || record.documentName || "document")
+    .replace(/[^a-zA-Z0-9_-]+/g, "_")
+    .slice(0, 120);
+
   return (
     record.vectorId ||
-    `${record.documentId}-${record.chunkIndex}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+    `${documentKey}-${record.chunkIndex}`
   );
 }
 
@@ -124,6 +179,7 @@ function mapGetResults(result) {
       vectorId: id,
       documentId: metadata.documentId || null,
       documentName: metadata.documentName || null,
+      domainName: metadata.domainName || null,
       chunkIndex: metadata.chunkIndex ?? index,
       text: documentText,
       characterLength: metadata.characterLength || documentText.length,
@@ -150,21 +206,12 @@ async function fetchAllChunks(collection, filters = {}) {
       include: ["documents", "metadatas"],
     });
 
-    const batch = mapStoredChunks(result).filter((record) => {
-      if (filters.documentId && record.documentId !== filters.documentId) {
-        return false;
-      }
-
-      if (filters.domainName && record.domainName !== filters.domainName) {
-        return false;
-      }
-
-      return true;
-    });
+    const rawBatch = mapStoredChunks(result);
+    const batch = applyChunkFilters(rawBatch, filters);
 
     records.push(...batch);
 
-    if (batch.length < pageSize) {
+    if (rawBatch.length < pageSize) {
       break;
     }
 
@@ -192,6 +239,8 @@ export async function addChunkRecords(records) {
     ),
   });
 
+  allChunksCache = null;
+
   return records.map((record, index) => ({
     ...record,
     vectorId: ids[index],
@@ -211,22 +260,11 @@ export async function searchSimilarChunks(
 
   const result = await collection.query({
     queryEmbeddings: [queryEmbedding],
-    nResults: Math.max(topK * 3, topK),
+    nResults: Math.min(300, Math.max(topK * 8, topK)),
     include: ["documents", "metadatas", "distances"],
   });
 
-  return mapQueryResults(result)
-    .filter((record) => {
-      if (filters.documentId && record.documentId !== filters.documentId) {
-        return false;
-      }
-
-      if (filters.domainName && record.domainName !== filters.domainName) {
-        return false;
-      }
-
-      return true;
-    })
+  return dedupeChunkRecords(applyChunkFilters(mapQueryResults(result), filters))
     .slice(0, topK);
 }
 
@@ -235,6 +273,10 @@ export async function listChunksByDocument(documentId) {
 
   if (!collection) {
     return listMemoryChunksByDocument(documentId);
+  }
+
+  if (allChunksCache) {
+    return applyChunkFilters(allChunksCache, { documentId });
   }
 
   return fetchAllChunks(collection, { documentId });
@@ -247,7 +289,11 @@ export async function listAllChunks(filters = {}) {
     return listMemoryAllChunks(filters);
   }
 
-  return fetchAllChunks(collection, filters);
+  if (!allChunksCache) {
+    allChunksCache = dedupeChunkRecords(await fetchAllChunks(collection));
+  }
+
+  return applyChunkFilters(allChunksCache, filters);
 }
 
 export async function resetVectorStore() {

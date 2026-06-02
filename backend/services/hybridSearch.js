@@ -7,10 +7,11 @@ function mergeSearchResults(semanticResults, keywordResults) {
   const merged = new Map();
 
   function makeKey(record) {
-    return (
-      record.vectorId ||
-      `${record.documentId || "document"}-${record.chunkIndex}`
-    );
+    return [
+      record.documentName || record.documentId || "document",
+      record.chunkIndex ?? "unknown",
+      (record.text || "").slice(0, 160),
+    ].join("::");
   }
 
   function upsert(record, source) {
