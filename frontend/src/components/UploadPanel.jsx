@@ -10,6 +10,8 @@ export default function UploadPanel({
   processing,
   loadingDocuments,
 }) {
+  const processedCount = documents.filter((document) => document.status === 'processed').length;
+
   return (
     <>
       <div className="upload-box">
@@ -55,22 +57,36 @@ export default function UploadPanel({
             No documents yet.
           </div>
         ) : (
-          documents.map((document) => (
+          <>
             <button
-              key={document.documentId}
               type="button"
-              className={`document-card ${selectedDocumentId === document.documentId ? 'document-card--active' : ''}`}
-              onClick={() => onSelectDocument(document.documentId)}
+              className={`document-card ${!selectedDocumentId ? 'document-card--active' : ''}`}
+              onClick={() => onSelectDocument('')}
             >
-              <h4 title={document.originalName}>
-                {document.originalName.length > 30 ? document.originalName.substring(0, 27) + '...' : document.originalName}
-              </h4>
+              <h4>All documents</h4>
               <div className="document-card__meta">
-                <span className={`status-pill status-pill--${document.status}`}>{document.status}</span>
-                <span>{document.chunkCount} chunk(s)</span>
+                <span className="status-pill">search all</span>
+                <span>{processedCount}/{documents.length} processed</span>
               </div>
             </button>
-          ))
+
+            {documents.map((document) => (
+              <button
+                key={document.documentId}
+                type="button"
+                className={`document-card ${selectedDocumentId === document.documentId ? 'document-card--active' : ''}`}
+                onClick={() => onSelectDocument(document.documentId)}
+              >
+                <h4 title={document.originalName}>
+                  {document.originalName.length > 30 ? document.originalName.substring(0, 27) + '...' : document.originalName}
+                </h4>
+                <div className="document-card__meta">
+                  <span className={`status-pill status-pill--${document.status}`}>{document.status}</span>
+                  <span>{document.chunkCount} chunk(s)</span>
+                </div>
+              </button>
+            ))}
+          </>
         )}
       </div>
     </>

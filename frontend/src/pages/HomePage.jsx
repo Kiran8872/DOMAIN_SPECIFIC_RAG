@@ -34,13 +34,13 @@ export default function HomePage() {
 
     try {
       const payload = await api.listDocuments();
-      setDocuments(payload.documents || []);
+      const nextDocuments = payload.documents || [];
+      setDocuments(nextDocuments);
 
-      const firstDocument = payload.documents?.[0] || null;
       if (nextSelectedId) {
         setSelectedDocumentId(nextSelectedId);
-      } else if (!selectedDocumentId && firstDocument) {
-        setSelectedDocumentId(firstDocument.documentId);
+      } else if (selectedDocumentId && !nextDocuments.some((document) => document.documentId === selectedDocumentId)) {
+        setSelectedDocumentId('');
       }
     } catch (error) {
       setNotice(error.message);
